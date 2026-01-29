@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "番茄钟"
+    },
+    {
+      "name": "string_todo_list",
+      "value": "任务"
+    },
+    {
+      "name": "string_count_down_timer",
+      "value": "计时"
+    },
+    {
+      "name": "string_statistics",
+      "value": "统计"
+    },
+    {
+      "name": "string_profile",
+      "value": "我的"
+    }
+  ]
+}
