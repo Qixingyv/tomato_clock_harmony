@@ -1,0 +1,1 @@
+export enum TaskType {Todo = 1,Plan = 2}

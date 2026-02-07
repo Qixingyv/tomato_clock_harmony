@@ -27,6 +27,54 @@
     {
       "name": "string_profile",
       "value": "我的"
+    },
+    {
+      "name": "string_task_list",
+      "value": "任务列表"
+    },
+    {
+      "name": "string_todo_items",
+      "value": "待办事项"
+    },
+    {
+      "name": "string_long_term_goals",
+      "value": "长期目标"
+    },
+    {
+      "name": "string_tomato_duration",
+      "value": "番茄时长:"
+    },
+    {
+      "name": "string_rest_duration",
+      "value": "休息时长:"
+    },
+    {
+      "name": "string_completed_tomato_count",
+      "value": "已完成番茄个数:"
+    },
+    {
+      "name": "string_deadline_duration",
+      "value": "截止日期:"
+    },
+    {
+      "name": "string_minute",
+      "value": "分钟"
+    },
+    {
+      "name": "string_pause",
+      "value": "暂停"
+    },
+    {
+      "name": "string_resume",
+      "value": "继续"
+    },
+    {
+      "name": "string_finish",
+      "value": "结束"
+    },
+    {
+      "name": "string_skip_break",
+      "value": "跳过休息"
     }
   ]
 }

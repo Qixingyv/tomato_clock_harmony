@@ -11,6 +11,10 @@
     {
       "name": "color_unselected",
       "value": "#666666"
+    },
+    {
+      "name": "color_todo_list_content",
+      "value": "#666666"
     }
   ]
 }
