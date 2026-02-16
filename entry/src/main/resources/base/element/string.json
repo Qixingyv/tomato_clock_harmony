@@ -1,6 +1,10 @@
 {
   "string": [
     {
+      "name": "string_empty",
+      "value": ""
+    },
+    {
       "name": "module_desc",
       "value": "module description"
     },
@@ -75,6 +79,15 @@
     {
       "name": "string_skip_break",
       "value": "跳过休息"
+    },
+    {
+      "name": "string_todo_mode",
+      "value": "待办模式"
+    },
+    {
+      "name": "string_plan_mode",
+      "value": "计划模式"
     }
+
   ]
 }

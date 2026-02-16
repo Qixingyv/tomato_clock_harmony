@@ -7,6 +7,8 @@ import {TaskType} from "../viewmodel/TaskType"
 @Component
 export struct ToDoList {
 
+  private tabsController?: TabsController;
+
   private toDoListArray: Array<ToDoListClass> = [
     new ToDoListClass(1, 1,'学习高数第三章', 1, 8, 25, 5,new Date(),0,1,new Date(),new Date()),
     new ToDoListClass(1, 1,'开发番茄钟', 1, 8, 25, 5,new Date(),0,1,new Date(),new Date()),
@@ -67,7 +69,7 @@ export struct ToDoList {
             if(item.getTaskType === this.currentMenu)
             {
               ListItem(){
-                ToDoListItem({toDoListItem: item})
+                ToDoListItem({toDoListItem: item,tabsController: this.tabsController})
               }
               .margin({top: '4vp',bottom: '4vp'})
             }
@@ -89,6 +91,8 @@ export struct ToDoList {
 @Component
 struct ToDoListItem {
 
+  private tabsController?: TabsController;
+
   @Prop
   private toDoListItem: ToDoListClass;
 
@@ -107,6 +111,10 @@ struct ToDoListItem {
         Button("开始")
           .width('20%')
           .backgroundColor($r("app.color.color_theme"))
+          .onClick(()=> {
+            this.tabsController?.changeIndex(1);
+          })
+
 
       }
       .margin({top: '8vp',left: '16vp'})
@@ -130,7 +138,7 @@ struct ToDoListItem {
         Row(){
           Text($r("app.string.string_completed_tomato_count"))
             .toDoListContent()
-          Text(this.toDoListItem.getCompletedTomatoNum.toString() + '/' + this.toDoListItem.getTotalTomatoNum.toString())
+          Text(`${this.toDoListItem.getCompletedTomatoNum.toString()}/${this.toDoListItem.getTotalTomatoNum.toString()}`)
             .toDoListContent()
         }
         .todoListRow()

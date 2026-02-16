@@ -1,16 +1,28 @@
 export class ToDoListClass {
 
+  // 任务id
   private id: number = 0;
+  // 所属用户id
   private user_id: number = 0;
+  // 任务名称
   private task_name: string = '';
+  // 任务类型 1. 待办模式 2. 长期模式
   private task_type: number = 0;
+  // 总共需要番茄个数
   private total_tomato_num: number = 0;
+  // 单个番茄时长(分钟)
   private tomato_duration: number = 0;
+  // 休息时长(分钟)
   private rest_duration: number = 0;
+  // 截至日期
   private deadline: Date = new Date();
+  // 已完成番茄个数
   private completed_tomato_num: number = 0;
+  // 任务状态
   private state: number = 0;
+  // 创建时间
   private create_time: Date = new Date();
+  // 更新时间
   private update_time: Date = new Date();
 
   constructor(

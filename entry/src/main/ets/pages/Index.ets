@@ -6,6 +6,8 @@ import { ToDoList } from '../view/ToDoList';
 @Entry
 @Component
 struct Index {
+
+  private tabsController: TabsController = new TabsController();
   @State currentIndex: number = 0;
 
   @Builder
@@ -27,10 +29,10 @@ struct Index {
 
   build() {
     Tabs(
-      {barPosition: BarPosition.End}
+      {barPosition: BarPosition.End,controller: this.tabsController}
     ) {
       TabContent(){
-        ToDoList()
+        ToDoList({ tabsController: this.tabsController })
       }
       .tabBar(this.tabBuilder($r("app.string.string_todo_list"),0,$r("app.media.todo_list")))
 
