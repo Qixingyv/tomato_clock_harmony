@@ -95,7 +95,5 @@ export class ToDoListClass {
   get getUpdateTime(): Date {
     return this.update_time;
   }
-
-
-
+  
 }

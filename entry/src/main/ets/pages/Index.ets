@@ -1,64 +1,63 @@
-import { CountDownTimer } from '../view/CountDownTimer';
-import { Profile } from '../view/Profile';
-import { Statistics } from '../view/Statistics';
-import { ToDoList } from '../view/ToDoList';
+import { GlobalNavStack } from '../common/GlobalNavStack'
+
 
 @Entry
 @Component
-struct Index {
+export struct Index {
 
-  private tabsController: TabsController = new TabsController();
-  @State currentIndex: number = 0;
-
-  @Builder
-  tabBuilder(title: ResourceStr,index: number,selectedImage: Resource){
-    Column(){
-      Image(selectedImage)
-        .width('24vp')
-        .fillColor(index === this.currentIndex? $r('app.color.color_theme') : $r('app.color.color_unselected'))
-        .margin({bottom: '4vp'})
-      Text(title)
-        .fontSize('12vp')
-        .fontWeight(500)
-        .fontColor(index === this.currentIndex? $r('app.color.color_theme') : $r('app.color.color_unselected'))
-    }
-    .width('100%')
-    .height('56vp')
-
-  }
 
   build() {
-    Tabs(
-      {barPosition: BarPosition.End,controller: this.tabsController}
-    ) {
-      TabContent(){
-        ToDoList({ tabsController: this.tabsController })
-      }
-      .tabBar(this.tabBuilder($r("app.string.string_todo_list"),0,$r("app.media.todo_list")))
+    Navigation(GlobalNavStack) {
+      Column() {
 
-      TabContent(){
-        CountDownTimer()
-      }
-      .tabBar(this.tabBuilder($r("app.string.string_count_down_timer"),1,$r("app.media.count_down_timer")))
+        // 图标及欢迎词
+        Column() {
+          Image($r("app.media.icon_foreground"))
+            .width('100vp')
 
-      TabContent(){
-        Statistics()
-      }
-      .tabBar(this.tabBuilder($r("app.string.string_statistics"),2,$r("app.media.statistics")))
+          Text("欢迎来到番茄钟")
+        }
+        .width('100%')
 
-      TabContent(){
-        Profile()
+        // 账号密码输入区
+        Column() {
+          TextInput({ placeholder: $r("app.string.string_please_enter_username") })
+            .textInputStyle()
+          TextInput({ placeholder: $r("app.string.string_please_enter_password") })
+            .textInputStyle()
+        }
+        .width('100%')
+
+        // 注册登录按钮
+        Row() {
+          Button($r("app.string.string_login")).onClick((event: ClickEvent) => {
+            GlobalNavStack.pushPathByName('MainPage',null);
+          })
+          Button($r("app.string.string_sign_up")).onClick((event: ClickEvent) => {
+          })
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.Center)
+
+        Column() {
+          Button("华为账号登录").onClick((event: ClickEvent) => {
+          })
+          Button("微信登录").onClick((event: ClickEvent) => {
+          })
+        }
+
       }
-      .tabBar(this.tabBuilder($r("app.string.string_profile"),3,$r("app.media.profile")))
+      .width('100%')
+      .height('100%')
+      .alignItems(HorizontalAlign.Center)
+      .justifyContent(FlexAlign.Center)
 
     }
-    .height('100%')
-    .width('100%')
-    .barHeight('80vp')
-    .barMode(BarMode.Fixed)
-    .onChange((index: number) => {
-      this.currentIndex = index;
-    })
-
   }
+}
+
+@Extend(TextInput)
+function textInputStyle() {
+  .width('70%')
+  .margin('4vp')
 }

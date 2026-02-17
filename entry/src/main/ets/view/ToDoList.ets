@@ -1,13 +1,11 @@
 import {ToDoListClass} from "../viewmodel/ToDoListClass"
 import DateUtils from "../common/DateUtils"
 import {TaskType} from "../viewmodel/TaskType"
+import {GlobalNavStack} from "../common/GlobalNavStack"
 
 
-@Entry
 @Component
 export struct ToDoList {
-
-  private tabsController?: TabsController;
 
   private toDoListArray: Array<ToDoListClass> = [
     new ToDoListClass(1, 1,'学习高数第三章', 1, 8, 25, 5,new Date(),0,1,new Date(),new Date()),
@@ -25,79 +23,77 @@ export struct ToDoList {
 
 
   build() {
-    Column() {
+    NavDestination() {
+      Column() {
 
-      // 标题
-      Row(){
-        Text("任务列表")
-          .fontSize('24vp')
-          .fontColor(Color.White)
-          .fontFamily("Harmony Sans SC")
-      }
-      .width('100%')
-      .backgroundColor($r("app.color.color_theme"))
-      .justifyContent(FlexAlign.Center)
-      .height('5%')
-
-
-      // 待办事项 长期目标
-      Row(){
-        Button(){
-          Text("待办模式")
-            .fontSize('16vp')
+        // 标题
+        Row() {
+          Text("任务列表")
+            .fontSize('24vp')
+            .fontColor(Color.White)
+            .fontFamily("Harmony Sans SC")
         }
-        .onClick(() => {
-          this.currentMenu = TaskType.Todo;
-        }
-        )
-        Button(){
-          Text("长期目标")
-            .fontSize('16vp')
-        }
-        .onClick( () => {
-          this.currentMenu = TaskType.Plan;
-        })
-      }
-      .width('100%')
-      .height('8%')
+        .width('100%')
+        .backgroundColor($r("app.color.color_theme"))
+        .justifyContent(FlexAlign.Center)
+        .height('5%')
 
-      // 任务栏展示
-      List(){
-        ForEach(
-          this.toDoListArray,
-          (item: ToDoListClass) => {
-            if(item.getTaskType === this.currentMenu)
-            {
-              ListItem(){
-                ToDoListItem({toDoListItem: item,tabsController: this.tabsController})
-              }
-              .margin({top: '4vp',bottom: '4vp'})
-            }
+
+        // 待办事项 长期目标
+        Row() {
+          Button() {
+            Text("待办模式")
+              .fontSize('16vp')
           }
-        )
+          .onClick(() => {
+            this.currentMenu = TaskType.Todo;
+          }
+          )
+
+          Button() {
+            Text("长期目标")
+              .fontSize('16vp')
+          }
+          .onClick(() => {
+            this.currentMenu = TaskType.Plan;
+          })
+        }
+        .width('100%')
+        .height('8%')
+
+        // 任务栏展示
+        List() {
+          ForEach(
+            this.toDoListArray,
+            (item: ToDoListClass) => {
+              if (item.getTaskType === this.currentMenu) {
+                ListItem() {
+                  ToDoListItem({ toDoListItem: item })
+                }
+                .margin({ top: '4vp', bottom: '4vp' })
+              }
+            }
+          )
+        }
+        .width('100%')
+        .alignListItem(ListItemAlign.Center)
+        .height('80%')
+
       }
       .width('100%')
-      .alignListItem(ListItemAlign.Center)
-      .height('80%')
-
+      .height('100%')
     }
-    .width('100%')
-    .height('100%')
+    .mode(NavDestinationMode.STANDARD)
   }
 
-}
 
+}
 
 @Component
 struct ToDoListItem {
 
-  private tabsController?: TabsController;
-
   @Prop
   private toDoListItem: ToDoListClass;
-
-  @Prop
-  private currentMenu: number;
 
   build() {
     Column(){
@@ -112,7 +108,7 @@ struct ToDoListItem {
           .width('20%')
           .backgroundColor($r("app.color.color_theme"))
           .onClick(()=> {
-            this.tabsController?.changeIndex(1);
+            GlobalNavStack.pushPathByName('CountDownTimerPage',null)
           })
 
 

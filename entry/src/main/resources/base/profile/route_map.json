@@ -1,0 +1,20 @@
+{
+  "routerMap": [
+    {
+      "name": "MainPage",
+      "pageSourceFile": "src/main/ets/pages/MainPage.ets",
+      "buildFunction": "MainPageBuilder",
+      "data": {
+        "description" : "this is MainPage"
+      }
+    },
+    {
+      "name": "CountDownTimerPage",
+      "pageSourceFile": "src/main/ets/pages/CountDownTimer.ets",
+      "buildFunction": "CountDownTimerBuilder",
+      "data": {
+        "description" : "this is CountDownTimerPage"
+      }
+    }
+  ]
+}

@@ -87,7 +87,22 @@
     {
       "name": "string_plan_mode",
       "value": "计划模式"
+    },
+    {
+      "name": "string_please_enter_username",
+      "value": "输入用户名"
+    },
+    {
+      "name": "string_please_enter_password",
+      "value": "输入密码"
+    },
+    {
+      "name": "string_login",
+      "value": "登录"
+    },
+    {
+      "name": "string_sign_up",
+      "value": "注册"
     }
-
   ]
 }
