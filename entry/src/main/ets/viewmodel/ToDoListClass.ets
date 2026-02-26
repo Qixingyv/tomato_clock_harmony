@@ -95,5 +95,21 @@ export class ToDoListClass {
   get getUpdateTime(): Date {
     return this.update_time;
   }
+
+  // 增加已完成番茄个数
+  incrementCompletedTomatoNum(): void {
+    if (this.completed_tomato_num < this.total_tomato_num) {
+      this.completed_tomato_num++;
+      this.update_time = new Date();
+    }
+  }
+
+  // 设置已完成番茄个数
+  setCompletedTomatoNum(num: number): void {
+    if (num >= 0 && num <= this.total_tomato_num) {
+      this.completed_tomato_num = num;
+      this.update_time = new Date();
+    }
+  }
   
 }

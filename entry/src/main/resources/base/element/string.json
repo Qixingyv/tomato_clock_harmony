@@ -103,6 +103,50 @@
     {
       "name": "string_sign_up",
       "value": "注册"
+    },
+    {
+      "name": "network_info",
+      "value": "NetWork Info Permission Request"
+    },
+    {
+      "name": "Internet",
+      "value": "Internet Permission Request"
+    },
+    {
+      "name": "string_rest_mode",
+      "value": "休息模式"
+    },
+    {
+      "name": "string_continue_tomato",
+      "value": "继续番茄钟"
+    },
+    {
+      "name": "string_end_and_record",
+      "value": "结束并记录番茄钟"
+    },
+    {
+      "name": "string_end_without_record",
+      "value": "结束不记录番茄钟"
+    },
+    {
+      "name": "string_confirm_skip_rest",
+      "value": "是否跳过休息？"
+    },
+    {
+      "name": "string_skip",
+      "value": "跳过"
+    },
+    {
+      "name": "string_continue_rest",
+      "value": "继续休息"
+    },
+    {
+      "name": "string_continue",
+      "value": "继续"
+    },
+    {
+      "name": "string_confirm_end",
+      "value": "确认结束"
     }
   ]
 }

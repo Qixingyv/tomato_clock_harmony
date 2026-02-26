@@ -20,8 +20,6 @@ export struct ToDoList {
 
   @State currentMenu: TaskType = TaskType.Todo;
 
-
-
   build() {
     NavDestination() {
       Column() {
@@ -108,7 +106,7 @@ struct ToDoListItem {
           .width('20%')
           .backgroundColor($r("app.color.color_theme"))
           .onClick(()=> {
-            GlobalNavStack.pushPathByName('CountDownTimerPage',null)
+            GlobalNavStack.pushPathByName('CountDownTimerPage',this.toDoListItem)
           })
 
 
