@@ -1,10 +1,12 @@
 import { GlobalNavStack } from '../common/GlobalNavStack'
+import { router } from '@kit.ArkUI'
 
 
 @Entry
 @Component
 export struct Index {
 
+  navPathStack: NavPathStack = new NavPathStack()
 
   build() {
     Navigation(GlobalNavStack) {
@@ -53,6 +55,7 @@ export struct Index {
       .justifyContent(FlexAlign.Center)
 
     }
+
   }
 }
 

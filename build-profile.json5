@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\20711\\.ohos\\config\\default_tomato_clock_harmony_zDd8WMT4XxX_i-z9u-Yr32XLgMmMHXj0FfelF4z-DdY=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A565EECF289FA38788248FC008DCAC4FAC6550E5B1DC6D8BD96F0900587F7238617D2C1928BDE",
+          "profile": "C:\\Users\\20711\\.ohos\\config\\default_tomato_clock_harmony_zDd8WMT4XxX_i-z9u-Yr32XLgMmMHXj0FfelF4z-DdY=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\20711\\.ohos\\config\\default_tomato_clock_harmony_zDd8WMT4XxX_i-z9u-Yr32XLgMmMHXj0FfelF4z-DdY=.p12",
+          "storePassword": "0000001AF7B863FC7B9E050EA9A2A61D2CB6EBD17CD04EB0F5FF1068BB7871C15ACAD26C5952B8591AC9"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

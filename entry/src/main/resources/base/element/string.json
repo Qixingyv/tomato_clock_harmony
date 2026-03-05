@@ -147,6 +147,94 @@
     {
       "name": "string_confirm_end",
       "value": "确认结束"
+    },
+    {
+      "name": "string_new_task",
+      "value": "新建任务"
+    },
+    {
+      "name": "string_edit_task",
+      "value": "编辑任务"
+    },
+    {
+      "name": "string_delete",
+      "value": "删除"
+    },
+    {
+      "name": "string_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "string_save",
+      "value": "保存"
+    },
+    {
+      "name": "string_task_name",
+      "value": "任务名称"
+    },
+    {
+      "name": "string_task_mode",
+      "value": "任务模式"
+    },
+    {
+      "name": "string_tomato_time",
+      "value": "番茄时间"
+    },
+    {
+      "name": "string_rest_time",
+      "value": "休息时间"
+    },
+    {
+      "name": "string_repeat_count",
+      "value": "输入重复次数"
+    },
+    {
+      "name": "string_daily_repeat_count",
+      "value": "输入每日重复次数"
+    },
+    {
+      "name": "string_remaining_days",
+      "value": "剩余天数"
+    },
+    {
+      "name": "string_today_completed",
+      "value": "今日已完成"
+    },
+    {
+      "name": "string_edit_mode",
+      "value": "编辑模式"
+    },
+    {
+      "name": "string_select_all",
+      "value": "全选"
+    },
+    {
+      "name": "string_please_enter_task_name",
+      "value": "请输入任务名称"
+    },
+    {
+      "name": "string_please_select_mode",
+      "value": "请选择任务模式"
+    },
+    {
+      "name": "string_please_enter_tomato_time",
+      "value": "请输入番茄时间"
+    },
+    {
+      "name": "string_please_enter_rest_time",
+      "value": "请输入休息时间"
+    },
+    {
+      "name": "string_please_enter_repeat_count",
+      "value": "请输入重复次数"
+    },
+    {
+      "name": "string_please_select_deadline",
+      "value": "请选择截止日期"
+    },
+    {
+      "name": "string_start",
+      "value": "开始"
     }
   ]
 }

@@ -15,6 +15,14 @@
       "data": {
         "description" : "this is CountDownTimerPage"
       }
+    },
+    {
+      "name": "TaskEditPage",
+      "pageSourceFile": "src/main/ets/pages/TaskEdit.ets",
+      "buildFunction": "TaskEditBuilder",
+      "data": {
+        "description" : "this is TaskEditPage"
+      }
     }
   ]
 }
