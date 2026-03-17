@@ -95,8 +95,12 @@ export struct CountDownTimer {
     this.isPause = false;
     this.progressTotal = this.toDoList.getTomatoDuration * 1000 * 60;
     this.progressValue = this.progressTotal;
+    // 先停止，再重置，延迟启动以确保组件状态稳定
+    this.textTimerController.pause();
     this.textTimerController.reset();
-    this.textTimerController.start();
+    setTimeout(() => {
+      this.textTimerController.start();
+    }, 50);
   }
 
   // 开始休息模式
@@ -105,20 +109,24 @@ export struct CountDownTimer {
     this.isPause = false;
     this.progressTotal = this.toDoList.getRestDuration * 1000 * 60;
     this.progressValue = this.progressTotal;
+    // 先停止，再重置，延迟启动以确保组件状态稳定
+    this.textTimerController.pause();
     this.textTimerController.reset();
-    this.textTimerController.start();
+    setTimeout(() => {
+      this.textTimerController.start();
+    }, 50);
   }
 
   // 处理专注模式结束
   handleWorkingModeEnd() {
-    this.textTimerController.pause();
+    // 不需要pause()，startRestMode()会调用reset()重置状态
     // 记录完成一个番茄钟
     this.toDoList.incrementCompletedTomatoNum();
     this.currentTomatoIndex++;
-    
+
     // TODO: 调用API更新后端数据（异步，不阻塞）
     // updateTaskToServer(this.toDoList);
-    
+
     // 检查是否还有未完成的番茄钟
     if (this.currentTomatoIndex < this.toDoList.getTotalTomatoNum) {
       // 还有未完成的番茄钟，自动进入休息模式
@@ -131,7 +139,7 @@ export struct CountDownTimer {
 
   // 处理休息模式结束
   handleRestModeEnd() {
-    this.textTimerController.pause();
+    // 不需要pause()，startWorkingMode()会调用reset()重置状态
     // 检查是否还有未完成的番茄钟
     if (this.currentTomatoIndex < this.toDoList.getTotalTomatoNum) {
       // 还有未完成的番茄钟，自动进入下一个专注模式
@@ -349,16 +357,14 @@ export struct CountDownTimer {
       this.startWorkingMode();
     })
     .onActive(() => {
-      // 页面激活时，如果未暂停则开始计时
-      if (!this.isPause) {
+      // 页面激活时确保计时器启动（此时组件已完全就绪）
+      if (this.currentTomatoStatus === TaskStatus.Working || this.currentTomatoStatus === TaskStatus.Rest) {
         this.textTimerController.start();
       }
     })
     .onInactive(() => {
-      // 页面失活时暂停计时
-      if (!this.isPause) {
-        this.textTimerController.pause();
-      }
+      // 页面失活时不自动暂停
+      // 让用户手动控制暂停/继续，避免干扰模式切换时的自动启动
     })
     .hideBackButton(true)
   }
