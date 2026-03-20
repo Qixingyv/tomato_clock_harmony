@@ -1,5 +1,5 @@
 import {ToDoListClass} from "../viewmodel/ToDoListClass"
-import DateUtils from "../common/DateUtils"
+import {DateUtils} from "../common/DateUtils"
 import {GlobalNavStack} from "../common/GlobalNavStack"
 // import {ConnectionUtils} from "../common/network/ConnectionUtils"
 

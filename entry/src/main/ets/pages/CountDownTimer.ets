@@ -1,7 +1,8 @@
 import { TaskType } from "../viewmodel/TaskType"
-import {ToDoListClass} from "../viewmodel/ToDoListClass"
-import {TaskStatus} from "../viewmodel/TaskStatus"
-import {GlobalNavStack} from "../common/GlobalNavStack"
+import { ToDoListClass } from "../viewmodel/ToDoListClass"
+import { TaskStatus } from "../viewmodel/TaskStatus"
+import { TimerMode } from "../viewmodel/TimerMode"
+import { GlobalNavStack } from "../common/GlobalNavStack"
 
 @Builder
 export function CountDownTimerBuilder() {
@@ -26,8 +27,8 @@ export struct CountDownTimer {
   // 总时间（毫秒）
   @State progressTotal: number = 0;
 
-  // 当前番茄钟状态
-  @State private currentTomatoStatus: TaskStatus = TaskStatus.Working;
+  // 当前番茄钟状态（计时器模式）
+  @State private currentTomatoStatus: TimerMode = TimerMode.WORKING;
 
   // 是否暂停
   @State private isPause: boolean = false;
@@ -54,36 +55,36 @@ export struct CountDownTimer {
   }
 
   // 获取页面当前状态
-  getCurrentTaskStatus(taskStatus: TaskStatus, isPause: boolean): string {
+  getCurrentTaskStatus(timerMode: TimerMode, isPause: boolean): string {
     let result: string = "";
-    if(taskStatus === TaskStatus.Working && isPause === false) {
+    if (timerMode === TimerMode.WORKING && isPause === false) {
       result = "专注模式";
     }
-    else if (taskStatus === TaskStatus.Working && isPause === true) {
+    else if (timerMode === TimerMode.WORKING && isPause === true) {
       result = "暂停";
     }
-    else if (taskStatus === TaskStatus.Rest && isPause === false) {
+    else if (timerMode === TimerMode.RESTING && isPause === false) {
       result = "休息模式";
     }
-    else if (taskStatus === TaskStatus.Rest && isPause === true) {
+    else if (timerMode === TimerMode.RESTING && isPause === true) {
       result = "休息暂停";
     }
     return result;
   }
 
   // 根据页面状态，获取左侧按钮值
-  getLeftButtonValue(currentTomatoStatus: TaskStatus, isPause: boolean): Resource {
+  getLeftButtonValue(currentTomatoStatus: TimerMode, isPause: boolean): Resource {
     let leftButtonValue: Resource = $r("app.string.string_empty");
-    if(currentTomatoStatus === TaskStatus.Working && isPause === false) {
+    if (currentTomatoStatus === TimerMode.WORKING && isPause === false) {
       leftButtonValue = $r("app.string.string_pause");
     }
-    else if (currentTomatoStatus === TaskStatus.Working && isPause === true) {
+    else if (currentTomatoStatus === TimerMode.WORKING && isPause === true) {
       leftButtonValue = $r("app.string.string_resume")
     }
-    else if (currentTomatoStatus === TaskStatus.Rest && isPause === false) {
+    else if (currentTomatoStatus === TimerMode.RESTING && isPause === false) {
       leftButtonValue = $r("app.string.string_skip_break");
     }
-    else if (currentTomatoStatus === TaskStatus.Rest && isPause === true) {
+    else if (currentTomatoStatus === TimerMode.RESTING && isPause === true) {
       leftButtonValue = $r("app.string.string_resume");
     }
     return leftButtonValue;
@@ -91,7 +92,7 @@ export struct CountDownTimer {
 
   // 开始专注模式
   startWorkingMode() {
-    this.currentTomatoStatus = TaskStatus.Working;
+    this.currentTomatoStatus = TimerMode.WORKING;
     this.isPause = false;
     this.progressTotal = this.toDoList.getTomatoDuration * 1000 * 60;
     this.progressValue = this.progressTotal;
@@ -105,7 +106,7 @@ export struct CountDownTimer {
 
   // 开始休息模式
   startRestMode() {
-    this.currentTomatoStatus = TaskStatus.Rest;
+    this.currentTomatoStatus = TimerMode.RESTING;
     this.isPause = false;
     this.progressTotal = this.toDoList.getRestDuration * 1000 * 60;
     this.progressValue = this.progressTotal;
@@ -218,9 +219,9 @@ export struct CountDownTimer {
                   this.progressValue = Math.max(0, this.progressValue - 1000);
                   if (elapsedTime >= this.progressTotal / 1000) {
                     // 倒计时结束
-                    if (this.currentTomatoStatus === TaskStatus.Working) {
+                    if (this.currentTomatoStatus === TimerMode.WORKING) {
                       this.handleWorkingModeEnd();
-                    } else if (this.currentTomatoStatus === TaskStatus.Rest) {
+                    } else if (this.currentTomatoStatus === TimerMode.RESTING) {
                       this.handleRestModeEnd();
                     }
                   }
@@ -254,18 +255,18 @@ export struct CountDownTimer {
             // 左侧按钮（暂停/继续/跳过休息）
             Button(this.getLeftButtonValue(this.currentTomatoStatus, this.isPause))
               .onClick(() => {
-                if (this.currentTomatoStatus === TaskStatus.Working && this.isPause === false) {
+                if (this.currentTomatoStatus === TimerMode.WORKING && this.isPause === false) {
                   // 专注模式：暂停
                   this.textTimerController.pause();
                   this.isPause = true;
-                } else if (this.currentTomatoStatus === TaskStatus.Working && this.isPause === true) {
+                } else if (this.currentTomatoStatus === TimerMode.WORKING && this.isPause === true) {
                   // 专注模式：继续
                   this.textTimerController.start();
                   this.isPause = false;
-                } else if (this.currentTomatoStatus === TaskStatus.Rest && this.isPause === false) {
+                } else if (this.currentTomatoStatus === TimerMode.RESTING && this.isPause === false) {
                   // 休息模式：跳过休息
                   this.showSkipRestConfirmDialog();
-                } else if (this.currentTomatoStatus === TaskStatus.Rest && this.isPause === true) {
+                } else if (this.currentTomatoStatus === TimerMode.RESTING && this.isPause === true) {
                   // 休息模式：继续
                   this.textTimerController.start();
                   this.isPause = false;
@@ -278,9 +279,9 @@ export struct CountDownTimer {
             // 右侧按钮（结束）
             Button($r("app.string.string_finish"))
               .onClick(() => {
-                if (this.currentTomatoStatus === TaskStatus.Working) {
+                if (this.currentTomatoStatus === TimerMode.WORKING) {
                   this.showWorkingEndDialog();
-                } else if (this.currentTomatoStatus === TaskStatus.Rest) {
+                } else if (this.currentTomatoStatus === TimerMode.RESTING) {
                   this.showRestEndDialog();
                 }
               })
@@ -311,7 +312,7 @@ export struct CountDownTimer {
               .opacity(0.3)
               .onClick(() => {
                 // 点击空白处：如果是专注模式，继续番茄钟
-                if (this.currentTomatoStatus === TaskStatus.Working) {
+                if (this.currentTomatoStatus === TimerMode.WORKING) {
                   this.showEndDialog = false;
                   this.textTimerController.start();
                   this.isPause = false;
@@ -358,7 +359,7 @@ export struct CountDownTimer {
     })
     .onActive(() => {
       // 页面激活时确保计时器启动（此时组件已完全就绪）
-      if (this.currentTomatoStatus === TaskStatus.Working || this.currentTomatoStatus === TaskStatus.Rest) {
+      if (this.currentTomatoStatus === TimerMode.WORKING || this.currentTomatoStatus === TimerMode.RESTING) {
         this.textTimerController.start();
       }
     })
@@ -373,7 +374,7 @@ export struct CountDownTimer {
   @Builder
   endDialogBuilder() {
     Column() {
-      if (this.currentTomatoStatus === TaskStatus.Working) {
+      if (this.currentTomatoStatus === TimerMode.WORKING) {
         // 专注模式结束弹窗
         Text("确认结束专注模式？")
           .fontSize('18vp')
@@ -421,7 +422,7 @@ export struct CountDownTimer {
             width: 1,
             color: Color.Gray
           })
-      } else if (this.currentTomatoStatus === TaskStatus.Rest) {
+      } else if (this.currentTomatoStatus === TimerMode.RESTING) {
         // 休息模式结束弹窗
         Text("确认结束休息？")
           .fontSize('18vp')

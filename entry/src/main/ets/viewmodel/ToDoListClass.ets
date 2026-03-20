@@ -300,5 +300,113 @@ export class ToDoListClass {
       }
     }
   }
-  
+
+  // ==================== Setter方法 ====================
+
+  /**
+   * 设置任务名称
+   */
+  setName(name: string): void {
+    this.name = name;
+    this.updated_at = new Date();
+  }
+
+  /**
+   * 设置番茄时长
+   */
+  setTomatoMinutes(minutes: number): void {
+    this.tomato_minutes = minutes;
+    this.updated_at = new Date();
+  }
+
+  /**
+   * 设置休息时长
+   */
+  setRestMinutes(minutes: number): void {
+    this.rest_minutes = minutes;
+    this.updated_at = new Date();
+  }
+
+  /**
+   * 设置目标番茄数（待办模式）
+   */
+  setTargetTomatoCount(count: number): void {
+    this.target_tomato_count = count;
+    this.updated_at = new Date();
+  }
+
+  /**
+   * 设置每日目标番茄数（计划模式）
+   */
+  setDailyTargetTomatoCount(count: number): void {
+    this.daily_target_tomato_count = count;
+    this.updated_at = new Date();
+  }
+
+  /**
+   * 设置截止日期（计划模式）
+   */
+  setDeadline(date: Date): void {
+    this.deadline = date;
+    this.updated_at = new Date();
+  }
+
+  /**
+   * 设置任务状态
+   */
+  setStatus(status: number): void {
+    this.status = status;
+    this.updated_at = new Date();
+  }
+
+  // ==================== 序列化方法 ====================
+
+  /**
+   * 转换为JSON对象（用于存储）
+   * Date对象转换为时间戳存储
+   */
+  toJson(): Record<string, Object | null> {
+    return {
+      'id': this.id,
+      'user_id': this.user_id,
+      'name': this.name,
+      'mode': this.mode,
+      'tomato_minutes': this.tomato_minutes,
+      'rest_minutes': this.rest_minutes,
+      'target_tomato_count': this.target_tomato_count,
+      'daily_target_tomato_count': this.daily_target_tomato_count,
+      'finished_tomato_count': this.finished_tomato_count,
+      'today_finished_count': this.today_finished_count,
+      'deadline': this.deadline ? this.deadline.getTime() : null,
+      'last_reset_date': this.last_reset_date ? this.last_reset_date.getTime() : null,
+      'status': this.status,
+      'created_at': this.created_at.getTime(),
+      'updated_at': this.updated_at.getTime()
+    };
+  }
+
+  /**
+   * 从JSON对象创建实例（用于从存储恢复）
+   * 时间戳转换为Date对象
+   */
+  static fromJson(data: Record<string, Object>): ToDoListClass {
+    return new ToDoListClass(
+      (data['id'] as number) || 0,
+      (data['user_id'] as number) || 0,
+      (data['name'] as string) || '',
+      (data['mode'] as number) || 1,
+      (data['tomato_minutes'] as number) || 25,
+      (data['rest_minutes'] as number) || 5,
+      (data['target_tomato_count'] as number | null) || null,
+      (data['daily_target_tomato_count'] as number | null) || null,
+      (data['finished_tomato_count'] as number) || 0,
+      (data['today_finished_count'] as number) || 0,
+      (data['deadline'] as number | null) ? new Date(data['deadline'] as number) : null,
+      (data['last_reset_date'] as number | null) ? new Date(data['last_reset_date'] as number) : null,
+      (data['status'] as number) || 1,
+      (data['created_at'] as number) ? new Date(data['created_at'] as number) : new Date(),
+      (data['updated_at'] as number) ? new Date(data['updated_at'] as number) : new Date()
+    );
+  }
+
 }
