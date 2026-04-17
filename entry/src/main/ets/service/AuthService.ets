@@ -194,9 +194,9 @@ export class AuthService {
 
       const user = new User();
       user.id = Date.now();
-      user.nickname = '游客用户';
+      user.nickname = '游客模式';
       user.avatar = '';
-      user.loginType = LoginType.WECHAT; // 默认使用微信类型
+      user.loginType = LoginType.GUEST; // 游客模式
       user.createdAt = new Date();
 
       const now = new Date();

@@ -253,6 +253,13 @@ export class StorageService {
     Logger.info('AuthState removed');
   }
 
+  /**
+   * 清除认证状态（别名方法）
+   */
+  static async clearAuthState(): Promise<void> {
+    await StorageService.removeAuthState();
+  }
+
   // ==================== 任务列表存储 ====================
 
   /**
@@ -282,6 +289,14 @@ export class StorageService {
       Logger.error('Failed to load tasks', error as Error);
       throw (error as Error);
     }
+  }
+
+  /**
+   * 清除任务列表
+   */
+  static async clearTasks(): Promise<void> {
+    await StorageService.remove(StorageConstant.KEY_TASKS);
+    Logger.info('Tasks cleared');
   }
 
   /**
@@ -324,6 +339,14 @@ export class StorageService {
       Logger.error('Failed to restore timer state', error as Error);
       return null;
     }
+  }
+
+  /**
+   * 清除计时器状态
+   */
+  static async clearTimerState(): Promise<void> {
+    await StorageService.remove(StorageConstant.KEY_TIMER_STATE);
+    Logger.info('TimerState cleared');
   }
 
   // ==================== 辅助方法 ====================

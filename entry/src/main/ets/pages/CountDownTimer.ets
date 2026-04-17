@@ -3,6 +3,8 @@ import { ToDoListClass } from "../viewmodel/ToDoListClass"
 import { TaskStatus } from "../viewmodel/TaskStatus"
 import { TimerMode } from "../viewmodel/TimerMode"
 import { GlobalNavStack } from "../common/GlobalNavStack"
+import { TaskService, TASK_REFRESH_TRIGGER } from "../service/TaskService"
+import { Logger } from "../common/Logger"
 
 @Builder
 export function CountDownTimerBuilder() {
@@ -15,8 +17,14 @@ export struct CountDownTimer {
   // 文本计时器控制器
   textTimerController: TextTimerController = new TextTimerController();
 
-  // 番茄钟对象
-  @Prop toDoList: ToDoListClass;
+  // 番茄钟对象（使用 @State 以支持运行时更新）
+  @State toDoList: ToDoListClass | null = null;
+
+  // 监听全局刷新触发器，当任务数据变化时更新
+  @StorageProp(TASK_REFRESH_TRIGGER) @Watch('onRefreshTriggerChange') refreshTrigger: number = 0;
+
+  // 记录初始触发器值，避免首次加载时重复刷新
+  private initialRefreshTrigger: number = -1;
 
   // 文本倒计时样式
   private textTimerFormat: string = "mm:ss"
@@ -41,6 +49,51 @@ export struct CountDownTimer {
 
   // 当前完成的番茄钟序号（用于判断是否还有下一个番茄钟）
   private currentTomatoIndex: number = 0;
+
+  /**
+   * 监听刷新触发器变化
+   * 当任务数据在其他页面被修改时，更新当前任务数据
+   */
+  onRefreshTriggerChange() {
+    // 首次加载时记录初始值，不执行刷新
+    if (this.initialRefreshTrigger === -1) {
+      this.initialRefreshTrigger = this.refreshTrigger;
+      return;
+    }
+    
+    // 忽略与初始值相同的变化（避免不必要的刷新）
+    if (this.refreshTrigger === this.initialRefreshTrigger) {
+      return;
+    }
+
+    Logger.info(`CountDownTimer: Refresh trigger changed to ${this.refreshTrigger}, updating task data`);
+    this.refreshTaskData();
+  }
+
+  /**
+   * 刷新任务数据
+   * 从 TaskService 获取最新的任务数据并更新 UI
+   */
+  private refreshTaskData(): void {
+    if (!this.toDoList) {
+      return;
+    }
+
+    const taskId = this.toDoList.getId;
+    const latestTask = TaskService.getTaskById(taskId);
+    
+    if (latestTask) {
+      Logger.info(`CountDownTimer: Task updated - TomatoMinutes: ${latestTask.getTomatoMinutes}, RestMinutes: ${latestTask.getRestMinutes}`);
+      this.toDoList = latestTask;
+      
+      // 如果正在专注模式，需要更新计时器总时长
+      if (this.currentTomatoStatus === TimerMode.WORKING && !this.isPause) {
+        this.progressTotal = latestTask.getTomatoDuration * 1000 * 60;
+      } else if (this.currentTomatoStatus === TimerMode.RESTING && !this.isPause) {
+        this.progressTotal = latestTask.getRestDuration * 1000 * 60;
+      }
+    }
+  }
 
   // 获取当前番茄钟模式
   getCurrentTaskType(taskType: TaskType): Resource {
@@ -92,6 +145,9 @@ export struct CountDownTimer {
 
   // 开始专注模式
   startWorkingMode() {
+    if (!this.toDoList) {
+      return;
+    }
     this.currentTomatoStatus = TimerMode.WORKING;
     this.isPause = false;
     this.progressTotal = this.toDoList.getTomatoDuration * 1000 * 60;
@@ -106,6 +162,9 @@ export struct CountDownTimer {
 
   // 开始休息模式
   startRestMode() {
+    if (!this.toDoList) {
+      return;
+    }
     this.currentTomatoStatus = TimerMode.RESTING;
     this.isPause = false;
     this.progressTotal = this.toDoList.getRestDuration * 1000 * 60;
@@ -119,14 +178,13 @@ export struct CountDownTimer {
   }
 
   // 处理专注模式结束
-  handleWorkingModeEnd() {
-    // 不需要pause()，startRestMode()会调用reset()重置状态
-    // 记录完成一个番茄钟
-    this.toDoList.incrementCompletedTomatoNum();
+  async handleWorkingModeEnd() {
+    if (!this.toDoList) {
+      return;
+    }
+    // 记录完成一个番茄钟（通过TaskService保存并通知）
+    await TaskService.completeTomato(this.toDoList.getId);
     this.currentTomatoIndex++;
-
-    // TODO: 调用API更新后端数据（异步，不阻塞）
-    // updateTaskToServer(this.toDoList);
 
     // 检查是否还有未完成的番茄钟
     if (this.currentTomatoIndex < this.toDoList.getTotalTomatoNum) {
@@ -140,6 +198,9 @@ export struct CountDownTimer {
 
   // 处理休息模式结束
   handleRestModeEnd() {
+    if (!this.toDoList) {
+      return;
+    }
     // 不需要pause()，startWorkingMode()会调用reset()重置状态
     // 检查是否还有未完成的番茄钟
     if (this.currentTomatoIndex < this.toDoList.getTotalTomatoNum) {
@@ -152,14 +213,13 @@ export struct CountDownTimer {
   }
 
   // 记录番茄钟并返回任务列表
-  recordTomatoAndReturn() {
-    // 更新已完成番茄个数
-    this.toDoList.incrementCompletedTomatoNum();
-    
-    // TODO: 调用API更新后端数据
-    // 这里应该调用网络请求更新服务器数据
-    // await updateTaskToServer(this.toDoList);
-    
+  async recordTomatoAndReturn() {
+    if (!this.toDoList) {
+      return;
+    }
+    // 通过TaskService更新已完成番茄个数并保存
+    await TaskService.completeTomato(this.toDoList.getId);
+
     // 返回任务列表
     GlobalNavStack.pop();
   }
@@ -187,17 +247,18 @@ export struct CountDownTimer {
     NavDestination() {
       Stack() {
         // 主内容区域
-        Column() {
+        if (this.toDoList) {
+          Column() {
 
-          // 任务类型
-          Row() {
-            Text(this.getCurrentTaskType(this.toDoList.getTaskType))
-              .fontSize('16vp')
-              .fontColor($r("app.color.color_theme"))
-          }
-          .width('100%')
-          .justifyContent(FlexAlign.Center)
-          .margin({ top: '20vp' })
+            // 任务类型
+            Row() {
+              Text(this.getCurrentTaskType(this.toDoList.getTaskType))
+                .fontSize('16vp')
+                .fontColor($r("app.color.color_theme"))
+            }
+            .width('100%')
+            .justifyContent(FlexAlign.Center)
+            .margin({ top: '20vp' })
 
           // 计时区域
           Stack() {
@@ -300,6 +361,7 @@ export struct CountDownTimer {
         .width('100%')
         .height('100%')
         .padding({ left: '20vp', right: '20vp' })
+        }
 
         // 结束弹窗遮罩层
         if (this.showEndDialog) {
@@ -478,7 +540,7 @@ export struct CountDownTimer {
         .onClick(() => {
           this.showSkipRestDialog = false;
           // 检查是否还有未完成的番茄钟
-          if (this.currentTomatoIndex < this.toDoList.getTotalTomatoNum) {
+          if (this.toDoList && this.currentTomatoIndex < this.toDoList.getTotalTomatoNum) {
             // 直接进入下一个专注模式（不增加索引，因为专注模式完成时已经增加过了）
             this.startWorkingMode();
           } else {

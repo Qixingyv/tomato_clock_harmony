@@ -2,12 +2,17 @@ import { Logger } from '../common/Logger';
 import { ToastUtil } from '../common/ToastUtil';
 import { DateUtils } from '../common/DateUtils';
 import { StorageService } from './StorageService';
-import { TaskValidator, ValidationResult } from '../common/validator/TaskValidator';
+import { TaskValidator } from '../common/validator/TaskValidator';
 import { ToDoListClass } from '../viewmodel/ToDoListClass';
 import { TaskMode } from '../viewmodel/TaskMode';
 import { TaskStatus } from '../viewmodel/TaskStatus';
 import { AuthService } from './AuthService';
 import { TaskConstant } from '../common/constants/TaskConstant';
+
+/**
+ * AppStorage 键名
+ */
+export const TASK_REFRESH_TRIGGER = 'taskRefreshTrigger';
 
 /**
  * 任务更新选项接口
@@ -44,6 +49,12 @@ export class TaskService {
     }
 
     try {
+      // 初始化 AppStorage 中的刷新触发器
+      if (!AppStorage.has(TASK_REFRESH_TRIGGER)) {
+        AppStorage.setOrCreate(TASK_REFRESH_TRIGGER, 0);
+        Logger.info('Initialized refresh trigger in AppStorage');
+      }
+
       // 加载任务列表
       const loadedTasks = await StorageService.loadTasks();
       TaskService.tasks = loadedTasks;
@@ -52,7 +63,7 @@ export class TaskService {
       TaskService.taskIdCounter = await StorageService.getTaskIdCounter();
 
       // 检查并重置今日计数
-      TaskService.checkTodayReset();
+      await TaskService.checkTodayReset();
 
       TaskService.initialized = true;
       Logger.info(`TaskService initialized with ${TaskService.tasks.length} tasks`);
@@ -83,9 +94,19 @@ export class TaskService {
    * 触发任务变化回调
    */
   private static notifyTaskChange(): void {
+    Logger.info('notifyTaskChange called');
     if (TaskService.taskChangeCallback) {
       TaskService.taskChangeCallback();
     }
+    // 同时更新 AppStorage 中的刷新触发器
+    const currentTrigger = AppStorage.get<number>(TASK_REFRESH_TRIGGER) || 0;
+    const newTrigger = currentTrigger + 1;
+    Logger.info(`Updating refresh trigger from ${currentTrigger} to ${newTrigger}`);
+    AppStorage.setOrCreate(TASK_REFRESH_TRIGGER, newTrigger);
+
+    // 验证更新是否成功
+    const verifyTrigger = AppStorage.get<number>(TASK_REFRESH_TRIGGER);
+    Logger.info(`Verified refresh trigger: ${verifyTrigger}`);
   }
 
   /**
@@ -104,7 +125,7 @@ export class TaskService {
    * 检查并重置今日计数
    * 如果今天是新的一天，重置所有计划任务的今日计数
    */
-  static checkTodayReset(): void {
+  static async checkTodayReset(): Promise<void> {
     const today = DateUtils.getToday();
     let needsSave = false;
 
@@ -120,11 +141,61 @@ export class TaskService {
     }
 
     if (needsSave) {
-      TaskService.saveTasks();
+      await TaskService.saveTasks();
     }
   }
 
   // ==================== CRUD操作 ====================
+
+  /**
+   * 创建新任务（使用任务对象）
+   * @param task 任务对象
+   * @returns 创建的任务对象，失败返回null
+   */
+  static async createTaskFromObject(task: ToDoListClass): Promise<ToDoListClass | null> {
+    // 验证参数
+    const validation = TaskValidator.validateTaskCreation(
+      task.getName,
+      task.getMode,
+      task.getTomatoMinutes,
+      task.getRestMinutes,
+      task.getTargetTomatoCount,
+      task.getDailyTargetTomatoCount,
+      task.getDeadline
+    );
+
+    if (!validation.valid) {
+      const errorMsg = validation.errors.join('; ');
+      Logger.error(`Task validation failed: ${errorMsg}`);
+      ToastUtil.showError(errorMsg);
+      return null;
+    }
+
+    try {
+      // 获取当前用户ID
+      const user = AuthService.getCurrentUser();
+      const userId = user ? user.id : 0;
+
+      // 创建任务并设置ID
+      task.setId(TaskService.taskIdCounter++);
+      task.setUserId(userId);
+      task.setCreatedAt(new Date());
+      task.setUpdatedAt(new Date());
+
+      TaskService.tasks.push(task);
+      await TaskService.saveTasks();
+
+      TaskService.notifyTaskChange();
+      ToastUtil.showSuccess('任务创建成功');
+      Logger.info(`Task created: ${task.getName} (ID: ${task.getId})`);
+
+      return task;
+    } catch (error) {
+      Logger.error('Failed to create task', error as Error);
+      ToastUtil.showError('任务创建失败');
+      return null;
+    }
+  }
 
   /**
    * 创建新任务
@@ -137,7 +208,7 @@ export class TaskService {
    * @param deadline 截止日期（计划模式）
    * @returns 创建的任务对象，失败返回null
    */
-  static async createTask(
+  static async createTaskWithParams(
     name: string,
     mode: number,
     tomatoMinutes: number = TaskConstant.DEFAULT_TOMATO_MINUTES,
@@ -198,6 +269,57 @@ export class TaskService {
       Logger.error('Failed to create task', error as Error);
       ToastUtil.showError('任务创建失败');
       return null;
+    }
+  }
+
+  /**
+   * 更新任务（使用任务对象）
+   * @param task 任务对象
+   * @returns 是否成功
+   */
+  static async updateTaskFromObject(task: ToDoListClass): Promise<boolean> {
+    const existing = TaskService.tasks.find(t => t.getId === task.getId);
+    if (!existing) {
+      Logger.warn(`Task not found: ${task.getId}`);
+      ToastUtil.showError('任务不存在');
+      return false;
+    }
+
+    // 验证名称
+    const nameValidation = TaskValidator.validateName(task.getName);
+    if (!nameValidation.valid) {
+      ToastUtil.showError(nameValidation.errors[0]);
+      return false;
+    }
+
+    try {
+      // 更新字段
+      existing.setName(task.getName);
+      existing.setTomatoMinutes(task.getTomatoMinutes);
+      existing.setRestMinutes(task.getRestMinutes);
+
+      if (existing.getMode === TaskMode.TODO && task.getTargetTomatoCount !== null) {
+        existing.setTargetTomatoCount(task.getTargetTomatoCount);
+      }
+
+      if (existing.getMode === TaskMode.PLAN) {
+        if (task.getDailyTargetTomatoCount !== null) {
+          existing.setDailyTargetTomatoCount(task.getDailyTargetTomatoCount);
+        }
+        if (task.getDeadline !== null) {
+          existing.setDeadline(task.getDeadline);
+        }
+      }
+
+      await TaskService.saveTasks();
+      TaskService.notifyTaskChange();
+
+      Logger.info(`Task updated: ${task.getId}`);
+      return true;
+    } catch (error) {
+      Logger.error('Failed to update task', error as Error);
+      ToastUtil.showError('任务更新失败');
+      return false;
     }
   }
 
@@ -286,10 +408,34 @@ export class TaskService {
   }
 
   /**
-   * 删除任务
+   * 删除任务（将状态改为已取消）
    * @param taskId 任务ID
    */
   static async deleteTask(taskId: number): Promise<boolean> {
+    const task = TaskService.tasks.find(t => t.getId === taskId);
+    if (!task) {
+      Logger.warn(`Task not found: ${taskId}`);
+      return false;
+    }
+
+    try {
+      task.setStatus(TaskStatus.CANCELLED);
+      await TaskService.saveTasks();
+      TaskService.notifyTaskChange();
+
+      Logger.info(`Task cancelled: ${taskId}`);
+      return true;
+    } catch (error) {
+      Logger.error('Failed to delete task', error as Error);
+      return false;
+    }
+  }
+
+  /**
+   * 永久删除任务（从列表中移除）
+   * @param taskId 任务ID
+   */
+  static async permanentlyDeleteTask(taskId: number): Promise<boolean> {
     const index = TaskService.tasks.findIndex(t => t.getId === taskId);
     if (index === -1) {
       Logger.warn(`Task not found: ${taskId}`);
@@ -303,7 +449,7 @@ export class TaskService {
 
       TaskService.notifyTaskChange();
       ToastUtil.showSuccess('任务已删除');
-      Logger.info(`Task deleted: ${taskId}`);
+      Logger.info(`Task permanently deleted: ${taskId}`);
 
       return true;
     } catch (error) {
@@ -317,7 +463,21 @@ export class TaskService {
    * 获取所有任务
    */
   static getAllTasks(): ToDoListClass[] {
+    // 返回所有任务的浅拷贝，避免直接修改原数组
     return [...TaskService.tasks];
+
+  }
+
+  /**
+   * 获取所有任务（别名方法，与规范一致）
+   * 返回深拷贝，确保每次都获取最新的数据
+   */
+  static getTasks(): ToDoListClass[] {
+    // 通过 JSON 序列化创建深拷贝
+    return TaskService.tasks.map(t => {
+      const json = t.toJson();
+      return ToDoListClass.fromJson(json);
+    });
   }
 
   /**
@@ -361,10 +521,12 @@ export class TaskService {
   // ==================== 任务状态操作 ====================
 
   /**
-   * 完成一个番茄钟
+   * 完成一个番茄钟（带参数）
    * @param taskId 任务ID
+   * @param actualMinutes 实际完成的分钟数
+   * @param isEarlyEnd 是否提前结束
    */
-  static async completeTomato(taskId: number): Promise<boolean> {
+  static async completeTomato(taskId: number, actualMinutes: number = 0, isEarlyEnd: boolean = false): Promise<boolean> {
     const task = TaskService.tasks.find(t => t.getId === taskId);
     if (!task) {
       Logger.warn(`Task not found: ${taskId}`);
@@ -372,6 +534,7 @@ export class TaskService {
     }
 
     try {
+      // 增加已完成番茄数
       task.incrementCompletedTomatoNum();
 
       // 检查是否完成整个任务
@@ -386,10 +549,41 @@ export class TaskService {
       await TaskService.saveTasks();
       TaskService.notifyTaskChange();
 
-      Logger.info(`Tomato completed for task: ${task.getName}`);
+      Logger.info(`Tomato completed for task: ${task.getName} (${actualMinutes}min, early: ${isEarlyEnd})`);
       return true;
     } catch (error) {
       Logger.error('Failed to complete tomato', error as Error);
+      return false;
+    }
+  }
+
+  /**
+   * 恢复已取消的任务
+   * @param taskId 任务ID
+   * @returns 是否成功
+   */
+  static async restoreTask(taskId: number): Promise<boolean> {
+    const task = TaskService.tasks.find(t => t.getId === taskId);
+    if (!task) {
+      Logger.warn(`Task not found: ${taskId}`);
+      return false;
+    }
+
+    if (task.getStatus !== TaskStatus.CANCELLED) {
+      Logger.warn(`Task is not cancelled: ${taskId}`);
+      return false;
+    }
+
+    try {
+      task.setStatus(TaskStatus.WORKING);
+      await TaskService.saveTasks();
+      TaskService.notifyTaskChange();
+
+      Logger.info(`Task restored: ${taskId}`);
+      ToastUtil.showSuccess('任务已恢复');
+      return true;
+    } catch (error) {
+      Logger.error('Failed to restore task', error as Error);
       return false;
     }
   }

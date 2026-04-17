@@ -4,5 +4,6 @@
  */
 export enum LoginType {
   WECHAT = 'wechat',    // 微信登录
-  HUAWEI = 'huawei'     // 华为账号登录
+  HUAWEI = 'huawei',    // 华为账号登录
+  GUEST = 'guest'       // 游客模式
 }

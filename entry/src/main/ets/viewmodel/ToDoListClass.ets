@@ -359,6 +359,34 @@ export class ToDoListClass {
     this.updated_at = new Date();
   }
 
+  /**
+   * 设置任务ID（仅用于创建任务时设置）
+   */
+  setId(id: number): void {
+    this.id = id;
+  }
+
+  /**
+   * 设置用户ID（仅用于创建任务时设置）
+   */
+  setUserId(userId: number): void {
+    this.user_id = userId;
+  }
+
+  /**
+   * 设置创建时间（仅用于创建任务时设置）
+   */
+  setCreatedAt(date: Date): void {
+    this.created_at = date;
+  }
+
+  /**
+   * 设置更新时间
+   */
+  setUpdatedAt(date: Date): void {
+    this.updated_at = date;
+  }
+
   // ==================== 序列化方法 ====================
 
   /**
@@ -389,7 +417,7 @@ export class ToDoListClass {
    * 从JSON对象创建实例（用于从存储恢复）
    * 时间戳转换为Date对象
    */
-  static fromJson(data: Record<string, Object>): ToDoListClass {
+  static fromJson(data: Record<string, Object | null>): ToDoListClass {
     return new ToDoListClass(
       (data['id'] as number) || 0,
       (data['user_id'] as number) || 0,

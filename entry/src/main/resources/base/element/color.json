@@ -15,6 +15,74 @@
     {
       "name": "color_todo_list_content",
       "value": "#666666"
+    },
+    {
+      "name": "color_background_gray",
+      "value": "#F5F5F5"
+    },
+    {
+      "name": "color_white",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "color_text_primary",
+      "value": "#333333"
+    },
+    {
+      "name": "color_text_secondary",
+      "value": "#666666"
+    },
+    {
+      "name": "color_text_tertiary",
+      "value": "#999999"
+    },
+    {
+      "name": "color_text_hint",
+      "value": "#CCCCCC"
+    },
+    {
+      "name": "color_divider",
+      "value": "#EEEEEE"
+    },
+    {
+      "name": "color_border",
+      "value": "#E5E5E5"
+    },
+    {
+      "name": "color_border_light",
+      "value": "#F0F0F0"
+    },
+    {
+      "name": "color_wechat_green",
+      "value": "#07C160"
+    },
+    {
+      "name": "color_huawei_red",
+      "value": "#C4000F"
+    },
+    {
+      "name": "color_danger",
+      "value": "#F44336"
+    },
+    {
+      "name": "color_warning",
+      "value": "#FF6B6B"
+    },
+    {
+      "name": "color_tab_selected_bg",
+      "value": "#FFF0F0"
+    },
+    {
+      "name": "color_todo_mode",
+      "value": "#2196F3"
+    },
+    {
+      "name": "color_plan_mode",
+      "value": "#4CAF50"
+    },
+    {
+      "name": "color_shadow",
+      "value": "#1F000000"
     }
   ]
 }

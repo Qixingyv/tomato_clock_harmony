@@ -1,11 +1,19 @@
 {
   "routerMap": [
     {
+      "name": "IndexPage",
+      "pageSourceFile": "src/main/ets/pages/Index.ets",
+      "buildFunction": "IndexBuilder",
+      "data": {
+        "description": "登录/欢迎页面"
+      }
+    },
+    {
       "name": "MainPage",
       "pageSourceFile": "src/main/ets/pages/MainPage.ets",
       "buildFunction": "MainPageBuilder",
       "data": {
-        "description" : "this is MainPage"
+        "description": "主页面，包含Tab导航"
       }
     },
     {
@@ -13,7 +21,7 @@
       "pageSourceFile": "src/main/ets/pages/CountDownTimer.ets",
       "buildFunction": "CountDownTimerBuilder",
       "data": {
-        "description" : "this is CountDownTimerPage"
+        "description": "计时器页面"
       }
     },
     {
@@ -21,7 +29,7 @@
       "pageSourceFile": "src/main/ets/pages/TaskEdit.ets",
       "buildFunction": "TaskEditBuilder",
       "data": {
-        "description" : "this is TaskEditPage"
+        "description": "任务创建/编辑页面"
       }
     }
   ]

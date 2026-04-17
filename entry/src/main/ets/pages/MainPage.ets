@@ -1,6 +1,8 @@
 import { Profile } from '../view/Profile';
 import { Statistics } from '../view/Statistics';
 import { ToDoList } from '../view/ToDoList';
+import { Logger } from '../common/Logger';
+import { TASK_REFRESH_TRIGGER } from '../service/TaskService';
 
 /**
  * MainPage组件的Builder函数
@@ -20,6 +22,21 @@ export struct MainPage {
 
   /** 当前选中的Tab索引，0=任务列表，1=统计，2=个人中心 */
   @State currentIndex: number = 0;
+
+  /** 页面显示计数，用于触发子组件刷新 */
+  @State private showCount: number = 0;
+  
+  /** 监听全局刷新触发器 */
+  @StorageLink(TASK_REFRESH_TRIGGER) @Watch('onGlobalRefreshChange') globalRefreshTrigger: number = 0;
+  
+  aboutToAppear() {
+    Logger.info(`MainPage aboutToAppear, showCount: ${this.showCount}, globalTrigger: ${this.globalRefreshTrigger}`);
+  }
+  
+  onGlobalRefreshChange() {
+    Logger.info(`MainPage onGlobalRef吧 reshChange: globalTrigger=${this.globalRefreshTrigger}, incrementing showCount`);
+    this.showCount++;
+  }
 
   /**
    * Tab栏构建器
@@ -60,7 +77,7 @@ export struct MainPage {
       ) {
         // Tab 1: 任务列表页面
         TabContent() {
-          ToDoList()
+          ToDoList({ refreshTriggerFromParent: this.showCount })
         }
         .tabBar(this.tabBuilder($r("app.string.string_todo_list"), 0, $r("app.media.todo_list")))
 
@@ -88,5 +105,10 @@ export struct MainPage {
 
     }
     .hideBackButton(true)  // 隐藏返回按钮，因为这是主页面
+    .onShown(() => {
+      // 页面显示时增加刷新计数，触发 ToDoList 刷新
+      this.showCount++;
+      Logger.info(`MainPage shown, showCount: ${this.showCount}`);
+    })
   }
 }
